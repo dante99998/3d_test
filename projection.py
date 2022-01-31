@@ -87,16 +87,24 @@ def are_vertices_ccw_in_screen_space(p0, p1, p2):
     dy02 = p2[1] - p0[1]
     return (dx01 * dy02 - dy01 * dx02) < 0
 
-def is_face_vis(p1, p2, p3):
+def get_vis_and_luma(p1, p2, p3, light_src=None):
     p12 = p2-p1
     p13 = p3-p1
 
     face_normal = np.cross(p12,p13)
     face_normal_unit = face_normal / np.linalg.norm(face_normal)
 
-    z_unit = np.array([0,0,-1])
+    if light_src is None:
+        vis_unit = np.array([0,0,-1])
+        vis = np.dot(face_normal_unit, vis_unit)
+        return vis, vis
+    else:
+        vis_unit = np.array([0,0,-1])
+        vis = np.dot(face_normal_unit, vis_unit)
+        l_unit = light_src / np.linalg.norm(light_src)
+        luma = np.dot(face_normal_unit, l_unit)
+        return vis, luma
 
-    return np.dot(face_normal_unit, z_unit)
 
 def btp2d(p1,p2,p3,depth):
     '''

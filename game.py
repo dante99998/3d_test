@@ -24,10 +24,12 @@ calib_coefs = (SCR_WIDTH/2, SCR_HEIGHT/2, 150.0, 150.0)
 
 sub_faces_steps = [0.2, 0.4, 0.6, 0.8]
 
+light_source = np.array([-15, 0, -13])
+
 cc = CommonColors()
 face_colors = (cc.White, cc.Silver, cc.Gray, cc.Red, cc.Maroon, cc.Yellow, cc.Olive, cc.Lime, cc.Green, cc.Aqua, cc.Teal, cc.Blue)
 rect_colors = (cc.Silver, cc.Red, cc.Yellow, cc.Blue, cc.Green, cc.Maroon)
-light_colors = (cc.Yellow, cc.Yellow, cc.Yellow, cc.Yellow, cc.Yellow, cc.Yellow)
+light_colors = (cc.White, cc.White, cc.White, cc.White, cc.White, cc.White)
 
 def get_meshes():
     v0 = np.array((0,0,0), 'float64')
@@ -96,21 +98,27 @@ class Game:
             p1 = verts_in_cam[i1]
             p2 = verts_in_cam[i2]
             p3 = verts_in_cam[i3]
-            intensvs = is_face_vis(p1,p2,p3)
-            if intensvs > 0:
+            vis, luma = get_vis_and_luma(p1,p2,p3, light_source)
+            if vis > 0:
                 p1_2d = img_xy[i1,:]
                 p2_2d = img_xy[i2,:]
                 p3_2d = img_xy[i3,:]
 
                 if  face == 'rect':
-                    r = light_colors[j][0] * intensvs
-                    g = light_colors[j][1] * intensvs
-                    b = light_colors[j][2] * intensvs
+                    color = light_colors[j]
+                    r = color[0] * luma
+                    g = color[1] * luma
+                    b = color[2] * luma
 
-                    pg.draw.polygon(self.display, (r,g,b), [p1_2d,p2_2d,p3_2d])
+                    if luma > 0: pg.draw.polygon(self.display, (r,g,b), [p1_2d,p2_2d,p3_2d])
                     # self.draw_triangle(p1_2d, p2_2d, p3_2d)
                 elif face == 'triang':
-                    pg.draw.polygon(self.display, face_colors[i], [p1_2d,p2_2d,p3_2d])
+                    color  = light_colors[i]
+                    r = color[0] * luma
+                    g = color[1] * luma
+                    b = color[2] * luma
+
+                    if luma > 0: pg.draw.polygon(self.display, (r,g,b), [p1_2d,p2_2d,p3_2d])
                 else:
                     self.draw_triangle(p1_2d, p2_2d, p3_2d)
                     # faces = btp2d(p1_2d, p2_2d, p3_2d, 1)
